@@ -8,6 +8,10 @@
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
 	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+	<script src="./chattychat.js"></script>
+	<script type="text/javascript">
+		/*jQuery.support.cors = true;*/
+	</script>
 </head> 
 
 	
@@ -17,12 +21,30 @@
 <div data-role="page" id="one">
 
 	<div data-role="header">
-		<h1>Multi-page</h1>
+		<h1>Chatty Chat Mobile</h1>
 	</div><!-- /header -->
 
 	<div data-role="content" >	
-		<h2>One</h2>
-		
+		<h2>Lobby</h2>
+		<div data-role="fieldcontain">
+               <label for="userName"><strong>User Name:</strong></label>
+               <br />
+               <input type="text" name="userName" id="userNameText" value=""  />
+               <!--<button id="userNameButton">Ok</button>-->
+               <br />
+               <br />
+               <label for="chats"><strong>Available chats:</strong></label>
+               <br />
+               <br />
+				<ul id="chats" data-role="listview">
+					<li><a href="acura.html">Acura</a></li>
+					<li><a href="audi.html">Audi</a></li>
+					<li><a href="bmw.html">BMW</a></li>
+				</ul>
+				<div id="blub"></div>
+        </div>
+        
+		<!--
 		<p>I have an <code>id</code> of "one" on my page container. I'm first in the source order so I'm shown when the page loads.</p>	
 		
 		<p>This is a multi-page boilerplate template that you can copy to build your first jQuery Mobile page. This template contains multiple "page" containers inside, unlike a <a href="page-template.html"> single page template</a> that has just one page within it.</p>	
@@ -32,6 +54,7 @@
 		<h3>Show internal pages:</h3>
 		<p><a href="#two" data-role="button">Show page "two"</a></p>	
 		<p><a href="#popup" data-role="button" data-rel="dialog" data-transition="pop">Show page "popup" (as a dialog)</a></p>
+		-->
 	</div><!-- /content -->
 	
 	<div data-role="footer" data-theme="d">
