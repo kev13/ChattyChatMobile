@@ -18,7 +18,7 @@
 <body> 
 
 <!-- Start of first page: #one -->
-<div data-role="page" id="one">
+<div data-role="page" id="Lobby">
 
 	<div data-role="header">
 		<h1>Chatty Chat Mobile</h1>
@@ -27,19 +27,19 @@
 	<div data-role="content" >	
 		<h2>Lobby</h2>
 		<div data-role="fieldcontain">
-               	<label for="userName"><strong>User Name:</strong></label>
-               	<br />
-               	<input type="text" name="userName" id="userNameText" value=""  />
-               	<!--<button id="userNameButton">Ok</button>-->
-               	<br />
-               	<br />
-               	<label for="chats"><strong>Available chats:</strong></label>
-               	<br />
-               	<br />
-				<ul id="chats" data-role="listview">
-				</ul>
-
+            <label for="userName"><strong>User Name:</strong></label>
+            <br />
+            <input type="text" name="userName" id="userNameText" value=""  />
+            <!--<button id="userNameButton">Ok</button>-->
+            <br />
+            <br />
+            <label for="chats"><strong>Available chats:</strong></label>
+            <br />
+            <br />
+			<ul id="chats" data-role="listview">
+			</ul>
         </div>
+        <a href="#CreateChannel" data-role="button">create channel</a>
 	</div><!-- /content -->
 	
 	<div data-role="footer" data-theme="d">
@@ -49,43 +49,78 @@
 
 
 <!-- Start of second page: #two -->
-<div data-role="page" id="two" data-theme="a">
+<div data-role="page" id="Chat">
 
 	<div data-role="header">
-		<h1>Two</h1>
+		<h1>Chatty Chat Mobile</h1>
 	</div><!-- /header -->
 
-	<div data-role="content" data-theme="a">	
-		<h2>Two</h2>
+	<div data-role="content">	
+		<h2 id="chatName"></h2>
+		<div data-role="collapsible">
+			<h3>Members online...</h3>
+			<ul id="userList" data-role="listview">
+			</ul>
+		</div>	
+		<label id="msgLabel" for="message"><strong>Text Input:</strong></label>
+		<input type="text" name="name" id="message" value=""  />
+		<!--
 		<p>I have an id of "two" on my page container. I'm the second page container in this multi-page template.</p>	
 		<p>Notice that the theme is different for this page because we've added a few <code>data-theme</code> swatch assigments here to show off how flexible it is. You can add any content or widget to these pages, but we're keeping these simple.</p>	
-		<p><a href="#one" data-direction="reverse" data-role="button" data-theme="b">Back to page "one"</a></p>	
+		<p><a href="#Lobby" data-direction="reverse" data-role="button">Back to page "one"</a></p>	
+		-->
 		
+		<a href="#Lobby" data-role="button">Leave Chat</a>
 	</div><!-- /content -->
 	
-	<div data-role="footer">
+	<div data-role="footer" data-theme="d">
+		<h4>Page Footer</h4>
+	</div><!-- /footer -->
+</div><!-- /page two -->
+
+<!-- Start of second page: #two -->
+<div data-role="page" id="CreateChannel">
+
+	<div data-role="header">
+		<h1>Chatty Chat Mobile</h1>
+	</div><!-- /header -->
+
+	<div data-role="content">	
+		<h2>Create a new channel</h2>
+		<label id="cnlLabel" for="message"><strong>Please enter channel name:</strong></label>
+    	<input type="text" name="name" id="channel" value=""  />
+		<!--
+		<p>I have an id of "two" on my page container. I'm the second page container in this multi-page template.</p>	
+		<p>Notice that the theme is different for this page because we've added a few <code>data-theme</code> swatch assigments here to show off how flexible it is. You can add any content or widget to these pages, but we're keeping these simple.</p>	
+		<p><a href="#Lobby" data-direction="reverse" data-role="button">Back to page "one"</a></p>	
+		-->
+		<a href="#Lobby" data-role="button">Cancel</a>
+	</div><!-- /content -->
+	
+	<div data-role="footer" data-theme="d">
 		<h4>Page Footer</h4>
 	</div><!-- /footer -->
 </div><!-- /page two -->
 
 
 <!-- Start of third page: #popup -->
-<div data-role="page" id="popup">
+<div data-role="page" id="Error">
 
 	<div data-role="header" data-theme="e">
-		<h1>Dialog</h1>
+		<h1>Chatty Chat Mobile</h1>
 	</div><!-- /header -->
 
 	<div data-role="content" data-theme="d">	
-		<h2>Popup</h2>
-		<p>I have an id of "popup" on my page container and only look like a dialog because the link to me had a <code>data-rel="dialog"</code> attribute which gives me this inset look and a <code>data-transition="pop"</code> attribute to change the transition to pop. Without this, I'd be styled as a normal page.</p>		
-		<p><a href="#one" data-rel="back" data-role="button" data-inline="true" data-icon="back">Back to page "one"</a></p>	
+		<h2 id="errorType"></h2>
+		<p id="errorText"></p>		
+		<p><a href="#Lobby" data-rel="back" data-role="button" data-inline="true" data-icon="back">Back to Lobby</a></p>	
 	</div><!-- /content -->
 	
 	<div data-role="footer">
 		<h4>Page Footer</h4>
 	</div><!-- /footer -->
-</div><!-- /page popup -->
+</div>
+<!-- /page popup -->
 
 </body>
 </html>

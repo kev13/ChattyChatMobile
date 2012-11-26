@@ -1,8 +1,8 @@
-var userToken, userName;
+var userToken, userName, nameValidated = false;
 
 function Init(){
-	GetUserToken();
-	LoadChats();
+	getUserToken();
+	loadChats();
 }
 
 function callService(methodName, callback, parameter){
@@ -17,7 +17,7 @@ function callService(methodName, callback, parameter){
 	});
 }
 
-function GetUserToken() {
+function getUserToken() {
 	$("#lblResult").addClass("loading");
 	$.ajax({
 		type: "POST",
@@ -25,12 +25,12 @@ function GetUserToken() {
 		data: "{}",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
-		success: GetUserTokenSuccess,
-		error: Error
+		success: getUserTokenSuccess,
+		error: getUserTokenError
 	});
 }
 
-function GetUserTokenSuccess(data, status) {
+function getUserTokenSuccess(data, status) {
 	userToken = data.d;
 	/*
 	$("#lblResult").removeClass("loading");
@@ -38,7 +38,7 @@ function GetUserTokenSuccess(data, status) {
 	*/
 }
 
-function Error(request, status, error) {
+function getUserTokenError(request, status, error) {
 /*
 	TODO: Error handling
 	$("#lblResult").removeClass("loading");
@@ -46,25 +46,25 @@ function Error(request, status, error) {
 */
 }
 
-function LoadChats() {
+function loadChats() {
 	$.ajax({
 		type: "POST",
 		url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/GetChats",
 		data: "{}",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
-		success: LoadChatsSuccess,
-		error: Error2
+		success: loadChatsSuccess,
+		error: loadChatsError
 	});	
 }
 
-function LoadChatsSuccess(data, status) {
+function loadChatsSuccess(data, status) {
 	var chatRoomList = $('#chats');
 	$.each(data.d, function(key, room) {
                 var entry = $('<li class="room">'), link = $('<a>'), counter = $('<span class="ui-li-count">');
-                /*link.click(function() {
+                link.click(function() {
                     joinChat(room.Name, room.Id);
-                });*/
+                });
                 link.text(room.Name);
                 counter.text(room.Players.length);
                 entry.append(link);
@@ -74,9 +74,52 @@ function LoadChatsSuccess(data, status) {
             chatRoomList.listview('refresh');
 }
 
-function Error2(request, status, error) {
-	$("#blub").removeClass("hullahulla");
-	$("#blub").html("aaaa");
+function loadChatsError(request, status, error) {
+	/* TODO: Error handling */
+}
+
+function isNameUnique(callback){
+	userName = $('#userNameText').val();
+	$.ajax({
+		type: "POST",
+		url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/IsNameUnique",
+		data: '{ name : "' + userName + '" }',
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		success: function(isUniqueName){
+			if(isUniqueName){
+				if(userName.length){
+					callback();
+				}else{
+					$("#errorType").html("username error");
+					$("#errorText").html("Your username is empty. Please enter your username.");
+					$.mobile.changePage($('#Error'));
+				}			
+			}else{
+				$("#errorType").html("username error");
+				$("#errorText").html("Your username is not unique. Please try again with a different one.");
+				$.mobile.changePage($('#Error'));
+				/* TODO: Error handling */
+			}
+		},
+		error: function (args) { alert("error"); } 
+	});
+}
+
+function joinChat(roomName, roomId){
+	isNameUnique(function() {
+		$.mobile.changePage($('#Chat'));
+		$("#chatName").html(roomName);
+		$("#msgLabel").html("Enter your Message (" + userName + " says): ");
+		$.ajax({
+			type: "POST",
+			url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/JoinChat",
+			data: '{ playerToken : "' + userToken + '", chatId : ' + roomId + ', userName : "' + userName + '"}',
+			contentType: "application/json; charset=utf-8",
+			dataType: "json"
+		});	
+		
+	});
 }
 
 window.onload = Init;
