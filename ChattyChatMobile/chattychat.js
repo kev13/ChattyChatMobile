@@ -1,9 +1,14 @@
-var userToken, userName, nameValidated = false;
+var userToken, userName;
 
-function Init(){
+$(document).ready( 
+function(){
 	getUserToken();
 	loadChats();
-}
+
+	$('#leaveChatBtn').bind("click", leaveChat);
+	$('#sendMessageBtn').bind("click", sendMessage);
+	$('#createChannelBtn').bind("click", createChannel);
+});
 
 function callService(methodName, callback, parameter){
 	$.ajax({
@@ -60,6 +65,7 @@ function loadChats() {
 
 function loadChatsSuccess(data, status) {
 	var chatRoomList = $('#chats');
+	chatRoomList.find('li.room').remove();
 	$.each(data.d, function(key, room) {
                 var entry = $('<li class="room">'), link = $('<a>'), counter = $('<span class="ui-li-count">');
                 link.click(function() {
@@ -114,12 +120,111 @@ function joinChat(roomName, roomId){
 		$.ajax({
 			type: "POST",
 			url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/JoinChat",
-			data: '{ playerToken : "' + userToken + '", chatId : ' + roomId + ', userName : "' + userName + '"}',
+			data: '{ playerToken : "' + userToken + '", chatId : "'+roomId +'", userName : "' + userName + '"}',
 			contentType: "application/json; charset=utf-8",
 			dataType: "json"
 		});	
-		
+		getMembers(roomId);
+		loadMessages();
 	});
 }
 
-window.onload = Init;
+function leaveChat(){
+	$.ajax({
+			type: "POST",
+			url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/LeaveChat",
+			data: '{ playerToken : "' + userToken + '"}',
+			contentType: "application/json; charset=utf-8",
+			dataType: "json"
+		});	
+
+	loadChats();
+}
+
+function getMembers(roomID){
+	var userList = $('#userList');
+	$.ajax({
+		type: "POST",
+		url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/GetPlayers",
+		data: '{ chatId : "'+roomID+'"}',
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		success: function(data) 
+		{
+			userList.find('li.player').remove();
+			$.each(data.d, function(key, member) 
+			{
+                var entry = $('<li class="player">');
+                entry.text(member.PlayerName);
+                userList.append(entry);
+            });
+            userList.listview('refresh');
+		},
+		error: getUserTokenError
+	});
+}
+
+function loadMessages(){
+	$.ajax({
+			type: "POST",
+			url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/GetLinesFrom",
+			data: '{ playerToken : "' + userToken + '"}',
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			success: function(data){
+				var messageList = $('#messageList');
+				messageList.find('li.message').remove();
+				$.each(data.d, function(key, member) 
+				{
+	                var entry = $('<li class="message">');
+	                entry.text(member.Player.PlayerName + ": " + member.Text);
+	                messageList.prepend(entry);
+	                messageList.listview('refresh');
+	            });
+	           		
+			}
+		});	
+}
+
+function sendMessage(){
+	var text = $('#messageText').val();
+	
+	if (text !== ""){
+		var messageList = $('#messageList');
+		$.ajax({
+				type: "POST",
+				url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/WriteLine",
+				data: '{ playerToken : "' + userToken + '", text: "'+text+'"}',
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				success: function(){
+					var entry = $('<li class="message">');
+		            entry.text(userName + ": " + text);
+		            messageList.prepend(entry);
+		           	messageList.listview('refresh');
+		           	$('#messageText').val("");
+				}
+			});	
+	}
+}
+
+function createChannel(){
+	var text = $('#channelText').val();
+	if (text !== ""){
+		$.ajax({
+				type: "POST",
+				url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/CreateChannel",
+				data: '{ playerToken : "' + userToken + '", channelName: "'+text+'"}',
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				success: function(data){
+					var chatId = data.d;
+		            joinChat(text, chatId);
+				}
+			});
+	} else {
+		$("#errorType").html("channel creation error");
+		$("#errorText").html("channel name is empty. Please specify!");
+		$.mobile.changePage($('#Error'));
+	}	
+}
