@@ -1,4 +1,4 @@
-var userToken, userName;
+var userToken, userName, chatsInterval, membersInterval, messagesInterval;
 
 $(document).ready( 
 function(){
@@ -8,19 +8,8 @@ function(){
 	$('#leaveChatBtn').bind("click", leaveChat);
 	$('#sendMessageBtn').bind("click", sendMessage);
 	$('#createChannelBtn').bind("click", createChannel);
+	$('#createChannelBtnLink').bind("click", verifyUsernameSet);
 });
-
-function callService(methodName, callback, parameter){
-	$.ajax({
-		type: "POST",
-		url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/" + methodName,
-		data: "{}",
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-		success: GetUserTokenSuccess,
-		error: Error
-	});
-}
 
 function getUserToken() {
 	$("#lblResult").addClass("loading");
@@ -30,25 +19,10 @@ function getUserToken() {
 		data: "{}",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
-		success: getUserTokenSuccess,
-		error: getUserTokenError
+		success: function (data){
+			userToken = data.d;
+		}
 	});
-}
-
-function getUserTokenSuccess(data, status) {
-	userToken = data.d;
-	/*
-	$("#lblResult").removeClass("loading");
-	$("#lblResult").html(data.d);
-	*/
-}
-
-function getUserTokenError(request, status, error) {
-/*
-	TODO: Error handling
-	$("#lblResult").removeClass("loading");
-	$("#lblResult").html(request.statusText);
-*/
 }
 
 function loadChats() {
@@ -58,15 +32,14 @@ function loadChats() {
 		data: "{}",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
-		success: loadChatsSuccess,
-		error: loadChatsError
+		success: loadChatsSuccess
 	});	
 }
 
 function loadChatsSuccess(data, status) {
 	var chatRoomList = $('#chats');
 	chatRoomList.find('li.room').remove();
-	$.each(data.d, function(key, room) {
+	$.each(data.d, function(key, room) {		
                 var entry = $('<li class="room">'), link = $('<a>'), counter = $('<span class="ui-li-count">');
                 link.click(function() {
                     joinChat(room.Name, room.Id);
@@ -76,12 +49,9 @@ function loadChatsSuccess(data, status) {
                 entry.append(link);
                 entry.append(counter);
                 chatRoomList.append(entry);
-            });
-            chatRoomList.listview('refresh');
-}
-
-function loadChatsError(request, status, error) {
-	/* TODO: Error handling */
+    });
+    chatRoomList.listview('refresh');
+    chatsInterval = setInterval(loadChats, 3000);
 }
 
 function isNameUnique(callback){
@@ -105,10 +75,8 @@ function isNameUnique(callback){
 				$("#errorType").html("username error");
 				$("#errorText").html("Your username is not unique. Please try again with a different one.");
 				$.mobile.changePage($('#Error'));
-				/* TODO: Error handling */
 			}
-		},
-		error: function (args) { alert("error"); } 
+		}
 	});
 }
 
@@ -123,9 +91,12 @@ function joinChat(roomName, roomId){
 			data: '{ playerToken : "' + userToken + '", chatId : "'+roomId +'", userName : "' + userName + '"}',
 			contentType: "application/json; charset=utf-8",
 			dataType: "json"
-		});	
+		});
 		getMembers(roomId);
 		loadMessages();
+		clearInterval(chatsInterval);
+		membersInterval = setInterval(getMembers(roomId), 2000);
+		messagesInterval = setInterval(loadMessages(), 2000);
 	});
 }
 
@@ -136,13 +107,14 @@ function leaveChat(){
 			data: '{ playerToken : "' + userToken + '"}',
 			contentType: "application/json; charset=utf-8",
 			dataType: "json"
-		});	
-
+	});
+	clearInterval(membersInterval);
+	clearInterval(messagesInterval);
 	loadChats();
 }
 
 function getMembers(roomID){
-	var userList = $('#userList');
+	
 	$.ajax({
 		type: "POST",
 		url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/GetPlayers",
@@ -151,6 +123,7 @@ function getMembers(roomID){
 		dataType: "json",
 		success: function(data) 
 		{
+			var userList = $('#userList');
 			userList.find('li.player').remove();
 			$.each(data.d, function(key, member) 
 			{
@@ -159,8 +132,7 @@ function getMembers(roomID){
                 userList.append(entry);
             });
             userList.listview('refresh');
-		},
-		error: getUserTokenError
+		}
 	});
 }
 
@@ -179,16 +151,14 @@ function loadMessages(){
 	                var entry = $('<li class="message">');
 	                entry.text(member.Player.PlayerName + ": " + member.Text);
 	                messageList.prepend(entry);
-	                messageList.listview('refresh');
 	            });
 	           		
 			}
-		});	
+	});	
 }
 
 function sendMessage(){
-	var text = $('#messageText').val();
-	
+	var text = $('#messageText').val();	
 	if (text !== ""){
 		var messageList = $('#messageList');
 		$.ajax({
@@ -201,10 +171,9 @@ function sendMessage(){
 					var entry = $('<li class="message">');
 		            entry.text(userName + ": " + text);
 		            messageList.prepend(entry);
-		           	messageList.listview('refresh');
 		           	$('#messageText').val("");
 				}
-			});	
+		});	
 	}
 }
 
@@ -219,12 +188,22 @@ function createChannel(){
 				dataType: "json",
 				success: function(data){
 					var chatId = data.d;
-		            joinChat(text, chatId);
+					joinChat(text, chatId);
 				}
 			});
 	} else {
 		$("#errorType").html("channel creation error");
 		$("#errorText").html("channel name is empty. Please specify!");
 		$.mobile.changePage($('#Error'));
-	}	
+	}
+}
+
+function verifyUsernameSet(){
+	if($('#userNameText').val().length){
+		$.mobile.changePage($('#CreateChannel'));
+	} else{
+		$("#errorType").html("username error");
+		$("#errorText").html("Your username is empty. Please enter your username.");
+		$.mobile.changePage($('#Error'));
+	}
 }

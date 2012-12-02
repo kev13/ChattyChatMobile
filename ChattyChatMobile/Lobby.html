@@ -26,20 +26,16 @@
 
 	<div data-role="content" >	
 		<h2>Lobby</h2>
-		<div data-role="fieldcontain">
-            <label for="userName"><strong>User Name:</strong></label>
-            <br />
-            <input type="text" name="userName" id="userNameText" value=""  />
-            <!--<button id="userNameButton">Ok</button>-->
-            <br />
-            <br />
-            <label for="chats"><strong>Available chats:</strong></label>
-            <br />
-            <br />
-			<ul id="chats" data-role="listview">
-			</ul>
-        </div>
-        <a href="#CreateChannel" data-role="button">create channel</a>
+        <label for="userName"><strong>User Name:</strong></label>
+        <br />
+        <input type="text" name="userName" id="userNameText" value=""  />
+        <label for="chats"><strong>Available chats:</strong></label>
+        <br />
+        <br />
+		<ul id="chats" data-role="listview">
+		</ul>
+		<br />
+        <a id="createChannelBtnLink" data-role="button">create channel</a>
 	</div><!-- /content -->
 	
 	<div data-role="footer" data-theme="d">
