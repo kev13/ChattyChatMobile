@@ -94,6 +94,9 @@ function joinChat(roomName, roomId){
 			contentType: "application/json; charset=utf-8",
 			dataType: "json"
 		});
+		
+		var messageList = $('#messageList');
+		messageList.find('li.message').remove();
 		getMembers(roomId);
 		loadMessages();
 		clearInterval(chatsInterval);
@@ -147,7 +150,7 @@ function loadMessages(){
 			dataType: "json",
 			success: function(data){
 				var messageList = $('#messageList');
-				//messageList.find('li.message').remove();
+				
 				$.each(data.d, function(key, member) 
 				{
 	                var entry = $('<li class="message">');
@@ -162,7 +165,7 @@ function loadMessages(){
 function sendMessage(){
 	var text = $('#messageText').val();	
 	if (text !== ""){
-		var messageList = $('#messageList');
+		//var messageList = $('#messageList');
 		$.ajax({
 				type: "POST",
 				url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/WriteLine",
