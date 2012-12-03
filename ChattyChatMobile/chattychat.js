@@ -100,7 +100,7 @@ function joinChat(roomName, roomId){
 		getMembers(roomId);
 		loadMessages();
 		clearInterval(chatsInterval);
-		membersInterval = setInterval(getMembers(roomId), 2000);
+		membersInterval = setInterval(function() {getMembers(roomId);} , 2000);
 		messagesInterval = setInterval(loadMessages, 2000);
 	});
 }
