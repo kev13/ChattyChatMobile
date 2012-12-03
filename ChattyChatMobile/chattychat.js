@@ -65,7 +65,7 @@ function isNameUnique(callback){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function(isUniqueName){
-			if(isUniqueName){
+			if(isUniqueName.d){
 				if(userName.length){
 					callback();
 				}else{
