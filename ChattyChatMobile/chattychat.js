@@ -9,6 +9,8 @@ function(){
 	$('#sendMessageBtn').bind("click", sendMessage);
 	$('#createChannelBtn').bind("click", createChannel);
 	$('#createChannelBtnLink').bind("click", verifyUsernameSet);
+	
+	chatsInterval = setInterval(loadChats, 3000);
 });
 
 function getUserToken() {
@@ -51,7 +53,7 @@ function loadChatsSuccess(data, status) {
                 chatRoomList.append(entry);
     });
     chatRoomList.listview('refresh');
-    chatsInterval = setInterval(loadChats, 3000);
+   
 }
 
 function isNameUnique(callback){
@@ -96,7 +98,7 @@ function joinChat(roomName, roomId){
 		loadMessages();
 		clearInterval(chatsInterval);
 		membersInterval = setInterval(getMembers(roomId), 2000);
-		messagesInterval = setInterval(loadMessages(), 2000);
+		messagesInterval = setInterval(loadMessages, 2000);
 	});
 }
 
@@ -110,11 +112,11 @@ function leaveChat(){
 	});
 	clearInterval(membersInterval);
 	clearInterval(messagesInterval);
+	chatsInterval = setInterval(loadChats, 3000);
 	loadChats();
 }
 
 function getMembers(roomID){
-	
 	$.ajax({
 		type: "POST",
 		url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/GetPlayers",
@@ -145,7 +147,7 @@ function loadMessages(){
 			dataType: "json",
 			success: function(data){
 				var messageList = $('#messageList');
-				messageList.find('li.message').remove();
+				//messageList.find('li.message').remove();
 				$.each(data.d, function(key, member) 
 				{
 	                var entry = $('<li class="message">');
@@ -170,7 +172,7 @@ function sendMessage(){
 				success: function(){
 					var entry = $('<li class="message">');
 		            entry.text(userName + ": " + text);
-		            messageList.prepend(entry);
+		            //messageList.prepend(entry);
 		           	$('#messageText').val("");
 				}
 		});	
