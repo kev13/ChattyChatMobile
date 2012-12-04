@@ -84,24 +84,31 @@ function isNameUnique(callback){
 
 function joinChat(roomName, roomId){
 	isNameUnique(function() {
-		$.mobile.changePage($('#Chat'));
-		$("#chatName").html(roomName);
-		$("#msgLabel").html("Enter your Message (" + userName + " says): ");
 		$.ajax({
 			type: "POST",
 			url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/JoinChat",
 			data: '{ playerToken : "' + userToken + '", chatId : "'+roomId +'", userName : "' + userName + '"}',
 			contentType: "application/json; charset=utf-8",
-			dataType: "json"
+			dataType: "json",
+			success: function(){
+				$.mobile.changePage($('#Chat'));
+				$("#chatName").html(roomName);
+				$("#msgLabel").html("Enter your Message (" + userName + " says): ");
+				var messageList = $('#messageList');
+				messageList.find('li.message').remove();
+				getMembers(roomId);
+				loadMessages();
+				clearInterval(chatsInterval);
+				membersInterval = setInterval(function() {getMembers(roomId);} , 2000);
+				messagesInterval = setInterval(loadMessages, 2000);
+			},
+			error: function (request, status, error) {
+				$("#errorType").html("join chat error");
+				$("#errorText").html(status.statusText);
+				$.mobile.changePage($('#Error'));
+				//alert(status.statusText);
+			}
 		});
-		
-		var messageList = $('#messageList');
-		messageList.find('li.message').remove();
-		getMembers(roomId);
-		loadMessages();
-		clearInterval(chatsInterval);
-		membersInterval = setInterval(function() {getMembers(roomId);} , 2000);
-		messagesInterval = setInterval(loadMessages, 2000);
 	});
 }
 
@@ -111,12 +118,15 @@ function leaveChat(){
 			url: "http://sifsv-80018.hsr.ch/Service/ChatService.asmx/LeaveChat",
 			data: '{ playerToken : "' + userToken + '"}',
 			contentType: "application/json; charset=utf-8",
-			dataType: "json"
+			dataType: "json",
+			success: function() {
+				clearInterval(membersInterval);
+				clearInterval(messagesInterval);
+				chatsInterval = setInterval(loadChats, 3000);
+				loadChats();
+			}
 	});
-	clearInterval(membersInterval);
-	clearInterval(messagesInterval);
-	chatsInterval = setInterval(loadChats, 3000);
-	loadChats();
+	
 }
 
 function getMembers(roomID){
@@ -157,7 +167,11 @@ function loadMessages(){
 	                entry.text(member.Player.PlayerName + ": " + member.Text);
 	                messageList.prepend(entry);
 	            });
-	           		
+			},
+			error: function Error(request, status, error) {
+				//$("#errorType").html("load msgs error");
+				//$("#errorText").html("status: " + status.statusText + "--- request" + request);
+				//$.mobile.changePage($('#Error'));
 			}
 	});	
 }
